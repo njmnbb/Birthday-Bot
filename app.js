@@ -13,7 +13,7 @@ bot.on('message', (msg) => {
 	var args = msg.content.replace(/\s+/g, ' ').split(' ', 2);
 	var voiceChannel = msg.member.voiceChannel;
 	var textChannel = msg.channel;
-	var name = args[1];
+	var name = args[1].toLowerCase();
 
 	// If user says stop, leave voice channel to stop video
 	if(name === 'stop') {
@@ -27,12 +27,12 @@ bot.on('message', (msg) => {
 	// Checking if user is in a voice channel
 	if(voiceChannel === undefined) {
 		textChannel.sendMessage('Please join a voice channel');
-		console.log('Join a voice channel');
 		return;
 	}
 
 	// If no errors, search YouTube for video
-	getVideoId(voiceChannel, name);
+	getVideoId(voiceChannel, textChannel, name);
+
 });
 
 bot.login(config.token);
@@ -58,27 +58,38 @@ function playSound(voiceChannel, videoId) {
 }
 
 
-function getVideoId(voiceChannel, name) {
-	var videoId = '';
-	var url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCIJ5p0TQwRyBgdq6Wb7D_gA&maxResults=1&q=' + name + '&type=video&key=' + config.key;
+function getVideoId(voiceChannel, textChannel, name) {
+	var vidId = '';
+	var url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCIJ5p0TQwRyBgdq6Wb7D_gA&maxResults=5&q=' + name + '&type=video&key=' + config.key;
+	var titles = '';
 
+	// Using YouTube API to search 1HappyBirthday's channel for the appropriate video
 	https.get(url, (res) => {
 
 		res.on('data', (data) => {
-			videoId += data;
+			vidId += data;
 		});
 
 		res.on('end', () => {
-			try {
-				videoId = JSON.parse(videoId).items[0].id.videoId;
+
+			// Checking if name entered is in the title of any of the returned videos 
+			titles = JSON.parse(vidId).items;
+			for(var i = 0 in titles) {
+				if(titles[i].snippet.title.toLowerCase().indexOf(name) > -1) {
+					vidId = JSON.parse(vidId).items[0].id.videoId;
+					break;
+				}
 			}
-			catch(error) {
+
+			// If name is not in the search results, error message
+			if(i === titles.length) {
 				textChannel.sendMessage('Sorry, your name was not found');
-				console.log('Sorry, no name found');
 				return;
 			}
 
-			playSound(voiceChannel, videoId);
+			// If no errors, play sound clip
+			playSound(voiceChannel, vidId);
+
 		});
 
 	}).on('error', (error) => {
