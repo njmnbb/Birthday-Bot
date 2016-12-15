@@ -16,7 +16,7 @@ bot.on('message', (msg) => {
 	var name = args[1];
 
 	// If user says stop, leave voice channel to stop video
-	if(args[0] === '!stop') {
+	if(name === 'stop') {
 		voiceChannel.leave();
 		return;
 	}
