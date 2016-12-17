@@ -1,5 +1,4 @@
 const config = require('./config.json');
-
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const https = require('https');
@@ -13,16 +12,16 @@ bot.on('message', (msg) => {
 	var args = msg.content.replace(/\s+/g, ' ').split(' ', 2);
 	var voiceChannel = msg.member.voiceChannel;
 	var textChannel = msg.channel;
-	var name = args[1].toLowerCase();
+	var name = args[1];
 
-	// If user says stop, leave voice channel to stop video
+	// If user says stop, leave voice channel to stop song
 	if(name === 'stop') {
 		voiceChannel.leave();
 		return;
 	}
 
 	// Checking for valid args
-	if(args[0] !== '!birthday') return;
+	if(args[0] !== '!birthday' || args[1] === undefined) return;
 
 	// Checking if user is in a voice channel
 	if(voiceChannel === undefined) {
@@ -31,7 +30,7 @@ bot.on('message', (msg) => {
 	}
 
 	// If no errors, search YouTube for video
-	getVideoId(voiceChannel, textChannel, name);
+	getVideoId(voiceChannel, textChannel, name.toLowerCase());
 
 });
 
@@ -42,7 +41,7 @@ bot.login(config.token);
 *************/
 
 function playSound(voiceChannel, videoId) {
-	var url = 'http://youtube.com/watch?v=' + videoId;
+	const url = 'http://youtube.com/watch?v=' + videoId;
 	var streamOptions = { seek: 0, volume: 1 };
 
 	voiceChannel.join()
