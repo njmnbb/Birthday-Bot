@@ -13,15 +13,15 @@ bot.on('message', (msg) => {
 	var voiceChannel = msg.member.voiceChannel;
 	var textChannel = msg.channel;
 	var name = args[1];
+	
+	// Checking for valid args
+	if(args[0] !== '!birthday' || args[1] === undefined) return;
 
 	// If user says stop, leave voice channel to stop song
-	if(name === 'stop') {
+	if(name === 'stop' && voiceChannel != undefined) {
 		voiceChannel.leave();
 		return;
 	}
-
-	// Checking for valid args
-	if(args[0] !== '!birthday' || args[1] === undefined) return;
 
 	// Checking if user is in a voice channel
 	if(voiceChannel === undefined) {
