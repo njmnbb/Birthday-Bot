@@ -14,6 +14,17 @@ bot.on('message', (msg) => {
 	var textChannel = msg.channel;
 	var name = args[1];
 	
+	// Error logging with timestamp
+	process.on('uncaughtException', function (e) {
+  		fs.appendFile(	'err.log', 
+				'Error occured on ' + new Date().toString()  + ':\n' + e + '\n\n-----------------------------------------------------------------\n\n'
+				, function (err) {
+  			if (err) throw err;
+  			console.log('Saved!');
+			process.exit(1);
+		});	
+	});
+	
 	// Checking for valid args
 	if(args[0] !== '!birthday' || args[1] === undefined) return;
 
