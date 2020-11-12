@@ -3,7 +3,6 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 const https = require('https');
 const ytdl = require('ytdl-core');
-const fs = require('fs');
 
 bot.on('ready', () => {
 	console.log(`Logged in as ${bot.user.username} #${bot.user.discriminator}`);
@@ -13,10 +12,9 @@ bot.on('message', (msg) => {
 	var args = msg.content.replace(/\s+/g, ' ').split(' ', 2);
 	var voiceChannel = msg.member.voiceChannel;
 	var textChannel = msg.channel;
-	
-	var prefix = '!birthday';
 	var name = args[1];
-
+	
+	// Error logging with timestamp
 	process.on('uncaughtException', function (e) {
   		fs.appendFile(	'err.log', 
 				'Error occured on ' + new Date().toString()  + ':\n' + e + '\n' + console.trace() + '\n\n-----------------------------------------------------------------\n\n'
@@ -24,25 +22,17 @@ bot.on('message', (msg) => {
   			if (err) throw err;
   			console.log('Saved!');
 			process.exit(1);
-		});
-  		
+		});	
 	});
-
+	
 	// Checking for valid args
-	if(args[0] != prefix) return;
-        if(name === undefined) return;
+	if(args[0] !== '!birthday' || args[1] === undefined) return;
 
 	// If user says stop, leave voice channel to stop song
 	if(name === 'stop' && voiceChannel != undefined) {
 		voiceChannel.leave();
 		return;
 	}
-
-	// If bot is already playing a song, don't interrupt song
-//	if(name !== 'stop' && voiceChannel != undefined) {
-//		textChannel.sendMessage(msg.member.user.toString() + ' Wait for the song to end or stop the song by using the command \'!birthday stop\'');
-//		return;
-//	}
 
 	// Checking if user is in a voice channel
 	if(voiceChannel === undefined) {
@@ -65,12 +55,15 @@ function playSound(voiceChannel, videoId) {
 	const url = 'http://youtube.com/watch?v=' + videoId;
 	var streamOptions = { seek: 0, volume: 1 };
 
+console.log('here0');
 	voiceChannel.join()
 		.then(connection => {
+			console.log(videoId);
 			if(videoId !== undefined) {
+				console.log('here1');
 				const stream = ytdl(url, {filter : 'audioonly'});
 				const dispatcher = connection.playStream(stream, streamOptions);
-				console.log('Got here');
+
 				dispatcher.on('end', () => voiceChannel.leave());
 			}
 		})
@@ -94,21 +87,19 @@ function getVideoId(voiceChannel, textChannel, name) {
 
 			// Checking if name entered is in the title of any of the returned videos 
 			titles = JSON.parse(vidId).items;
+			
 			for(var i = 0 in titles) {
-				console.log(titles[i].snippet.title.toLowerCase());
-				
-				// If no errors, play birthday song
 				if(titles[i].snippet.title.toLowerCase().indexOf(name) > -1) {
-					vidId = JSON.parse(vidId).items[i].id.videoId;
+					// If no errors, play sound clip
+					vidId = JSON.parse(vidId).items[0].id.videoId;
 					playSound(voiceChannel, vidId);
 					return;
 				}
-			}
+			}			
 
 			// If name is not in the search results, error message
 			textChannel.sendMessage('Sorry, your name was not found');
 			return;
-
 		});
 
 	}).on('error', (error) => {
