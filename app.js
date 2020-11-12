@@ -3,26 +3,27 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 const https = require('https');
 const ytdl = require('ytdl-core');
+const fs = require('fs');
 
 bot.on('ready', () => {
-	console.log(`Logged in as ${bot.user.username} #${bot.user.discriminator}`);
+	console.log(`Logged in as ${bot.user.username} #${bot.user.discriminator}`); 
 });
 
 bot.on('message', (msg) => {
 	var args = msg.content.replace(/\s+/g, ' ').split(' ', 2);
-	var voiceChannel = msg.member.voiceChannel;
+	var voiceChannel = msg.member.voice.channel;
 	var textChannel = msg.channel;
 	var name = args[1];
 	
 	// Error logging with timestamp
 	process.on('uncaughtException', function (e) {
-  		fs.appendFile(	'err.log', 
+  		fs.appendFile('err.log', 
 				'Error occured on ' + new Date().toString()  + ':\n' + e + '\n' + console.trace() + '\n\n-----------------------------------------------------------------\n\n'
 				, function (err) {
-  			if (err) throw err;
-  			console.log('Saved!');
-			process.exit(1);
-		});	
+					if (err) throw err;
+					console.log('Saved!');
+					process.exit(1);
+				});	
 	});
 	
 	// Checking for valid args
@@ -35,8 +36,8 @@ bot.on('message', (msg) => {
 	}
 
 	// Checking if user is in a voice channel
-	if(voiceChannel === undefined) {
-		textChannel.sendMessage(msg.member.user.toString() + ' Please join a voice channel');
+	if(voiceChannel === null) {
+		textChannel.send(msg.member.user.toString() + ' Please join a voice channel');
 		return;
 	}
 
@@ -53,18 +54,15 @@ bot.login(config.token);
 
 function playSound(voiceChannel, videoId) {
 	const url = 'http://youtube.com/watch?v=' + videoId;
-	var streamOptions = { seek: 0, volume: 1 };
+	var streamOptions = { seek: 0, volume: 0.3 };
 
-console.log('here0');
 	voiceChannel.join()
 		.then(connection => {
-			console.log(videoId);
 			if(videoId !== undefined) {
-				console.log('here1');
 				const stream = ytdl(url, {filter : 'audioonly'});
-				const dispatcher = connection.playStream(stream, streamOptions);
+				const dispatcher = connection.play(stream, streamOptions);
 
-				dispatcher.on('end', () => voiceChannel.leave());
+				dispatcher.on('finish', () => voiceChannel.leave());
 			}
 		})
 		.catch(console.error);
@@ -98,7 +96,7 @@ function getVideoId(voiceChannel, textChannel, name) {
 			}			
 
 			// If name is not in the search results, error message
-			textChannel.sendMessage('Sorry, your name was not found');
+			textChannel.send('Sorry, your name was not found');
 			return;
 		});
 
