@@ -9,6 +9,11 @@ bot.on('ready', () => {
 	console.log(`Logged in as ${bot.user.username} #${bot.user.discriminator}`); 
 });
 
+bot.on('guildCreate', (guild) => {
+	let defaultTextChannel = guild.channels.cache.find(channel => channel.name === 'general');
+	defaultTextChannel.send('**Thanks for adding Birthday-Bot!**\n\n- Start by joining a voice channel and typing `!birrthday [name]` to try out the bot\n- List of commands can be found by typing `!birthday help`')
+});
+
 bot.on('message', (msg) => {
 	var args = msg.content.replace(/\s+/g, ' ').split(' ', 2);
 	var voiceChannel = msg.member.voice.channel;
@@ -32,6 +37,12 @@ bot.on('message', (msg) => {
 	// If user says stop, leave voice channel to stop song
 	if(name === 'stop' && voiceChannel != undefined) {
 		voiceChannel.leave();
+		return;
+	}
+
+	if(name === 'help') {
+		textChannel.send('Welcome to Birthday-Bot! Here are your commands:\n\n`!birthday [name]`: Searches the 1HappyBirthday channel for a song that matches the name entered\n\n`!birthday stop`: Stops the current song, if one is playing, and leaves the voice channel');
+
 		return;
 	}
 
