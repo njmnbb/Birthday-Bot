@@ -41,7 +41,7 @@ bot.on('message', (msg) => {
 	}
 
 	if(name === 'help') {
-		textChannel.send('Welcome to Birthday-Bot! Here are your commands:\n\n`!birthday [name]`: Searches the 1HappyBirthday channel for a song that matches the name entered\n\n`!birthday stop`: Stops the current song, if one is playing, and leaves the voice channel');
+		textChannel.send('`!birthday [name]`: Searches the 1HappyBirthday channel for a song that matches the name entered\n`!birthday stop`: Stops the current song, if one is playing, and leaves the voice channel');
 
 		return;
 	}
