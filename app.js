@@ -11,7 +11,7 @@ bot.on('ready', () => {
 
 bot.on('guildCreate', (guild) => {
 	let defaultTextChannel = guild.channels.cache.find(channel => channel.name === 'general');
-	defaultTextChannel.send('**Thanks for adding Birthday-Bot!**\n\n- Start by joining a voice channel and typing `!birrthday [name]` to try out the bot\n- List of commands can be found by typing `!birthday help`')
+	defaultTextChannel.send('**Thanks for adding Birthday-Bot!**\n\n- Start by joining a voice channel and typing `!birthday [name]` to try out the bot\n- List of commands can be found by typing `!birthday help`')
 });
 
 bot.on('message', (msg) => {
